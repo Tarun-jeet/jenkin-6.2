@@ -1,0 +1,106 @@
+pipeline {
+    agent any
+
+    environment {
+        EMAIL_RECIPIENT = 'tarunjeetsingh1111@gmail.com'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                echo 'Cloning the latest code from the GitHub repository...'
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo 'Starting the build process using the specified build automation tool...'
+                // Example for Java: Compiles the code and packages it using Maven
+                // sh 'mvn clean package'
+                
+                // Example for Node.js: Installs all project dependencies using npm
+                // sh 'npm install'
+            }
+        }
+
+        stage('Unit Tests') {
+            steps {
+                echo 'Executing unit tests to validate individual functions and components...'
+                // Example: Runs JUnit or PyTest for unit testing
+                // sh 'mvn test'
+                
+                // Example for Node.js using Jest 
+                // sh 'npm test'
+            }
+        }
+
+        stage('Code Analysis') {
+            steps {
+                echo 'Analyzing the codebase for quality, maintainability, and coding standard adherence...'
+                // Example using SonarQube for static code analysis
+                // sh 'sonar-scanner -Dsonar.projectKey=TheProjectKey'
+            }
+        }
+
+        stage('Security Scan') {
+            steps {
+                echo 'Performing a security scan to detect vulnerabilities and potential risks in the code...'
+                // Example using OWASP Dependency Check
+                // sh 'dependency-check.sh --scan ./'
+            }
+            post {
+                always {
+                    echo 'Sending an email notification with security scan results...'
+                    emailext subject: "Security Scan Completed: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                             body: "The security scan has finished. Review results at ${env.BUILD_URL}",
+                             from: "tarunjeet4829.be23@chitkara.edu.in",
+                             to: "${EMAIL_RECIPIENT}"
+                }
+            }
+        }
+
+        stage('Deploy to Staging') {
+            steps {
+                echo 'Deploying the application to the staging environment for further testing...'
+                // Example using Docker for container deployment
+
+            }
+        }
+
+        stage('Integration Tests on Staging') {
+            steps {
+                echo 'Executing integration tests on the staging environment to validate end-to-end workflows...'
+                // Example: Run automated test suites using Postman or Selenium
+                // sh './run-integration-tests.sh'
+            }
+        }
+
+        stage('Deploy to Production') {
+            steps {
+                echo 'Deploying the application to the production environment for live users...'
+                // Example using AWS CLI for deployment
+                
+                // Example using Kubernetes
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Sending success email notification to the recipient...'
+            emailext subject: "Build Successful: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                     body: "Good news! The build succeeded. Check it here: ${env.BUILD_URL}",
+                     from: "tarunjeet4829.be23@chitkara.edu.in",
+                     to: "${EMAIL_RECIPIENT}"
+                     
+        }
+        failure {
+            echo 'Sending failure email notification to the recipient with log details...'
+            emailext subject: "Build Failed: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                     body: "Oops! The build failed. Check the logs here: ${env.BUILD_URL}",
+                     from: "tarunjeet4829.be23@chitkara.edu.in",
+                     to: "${EMAIL_RECIPIENT}"
+        }
+    }
+}
